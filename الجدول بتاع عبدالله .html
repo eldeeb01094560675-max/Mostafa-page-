@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمة الحضور الشهرية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .month-info {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 14px;
+        }
+
+        .add-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .add-section input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .add-section input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #667eea;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        th:first-child {
+            text-align: right;
+            min-width: 140px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background 0.3s;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        td {
+            padding: 10px 4px;
+            text-align: center;
+        }
+
+        td:first-child {
+            text-align: right;
+            padding: 10px 15px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            padding-right: 15px;
+            min-width: 140px;
+            background: #f8f9fa;
+            border-right: 2px solid #667eea;
+        }
+
+        tbody tr:hover td:first-child {
+            background: #e8eaf6;
+        }
+
+        .day-cell {
+            padding: 6px 2px;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 600;
+        }
+
+        .day-cell.present {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .day-cell.absent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .day-cell.empty {
+            background: #f0f0f0;
+            color: #999;
+        }
+
+        .day-cell:hover {
+            opacity: 0.8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 22px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+            transform: rotate(90deg);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+
+        .stat-item.present {
+            background: #d4edda;
+            border-color: #155724;
+        }
+
+        .stat-item.absent {
+            background: #f8d7da;
+            border-color: #721c24;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: inherit;
+        }
+
+        .percentage {
+            font-size: 13px;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        .day-edit-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .day-edit-section h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 16px;
+        }
+
+        .days-edit-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .day-edit-btn {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f8f9fa;
+            color: #333;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .day-edit-btn:hover {
+            border-color: #667eea;
+        }
+
+        .day-edit-btn.present {
+            background: #d4edda;
+            border-color: #155724;
+            color: #155724;
+        }
+
+        .day-edit-btn.absent {
+            background: #f8d7da;
+            border-color: #721c24;
+            color: #721c24;
+        }
+
+        .details-section {
+            margin-top: 1.5rem;
+        }
+
+        .details-section h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 16px;
+        }
+
+        .days-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .day-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .day-tag.present {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .day-tag.absent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .btn-delete {
+            flex: 1;
+            background: #dc3545;
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .btn-close {
+            flex: 1;
+            background: #6c757d;
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        .btn-close:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            table {
+                font-size: 11px;
+            }
+
+            th, td {
+                padding: 8px 2px;
+            }
+
+            td:first-child {
+                min-width: 100px;
+                padding: 8px 10px;
+            }
+
+            .days-edit-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 قائمة الحضور الشهرية</h1>
+        <div class="month-info">
+            <span id="monthDisplay"></span>
+        </div>
+
+        <div class="add-section">
+            <input type="text" id="studentInput" placeholder="اسم الطالب الجديد">
+            <button class="btn" onclick="addStudent()">
+                <i class="fas fa-plus"></i> إضافة
+            </button>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="attendanceTable">
+                <thead>
+                    <tr id="headerRow">
+                        <th>اسم الطالب</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="detailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalStudentName"></h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item present">
+                    <div class="stat-label">أيام الحضور</div>
+                    <div class="stat-value" id="presentDays">0</div>
+                    <div class="percentage" id="presentPercentage"></div>
+                </div>
+                <div class="stat-item absent">
+                    <div class="stat-label">أيام الغياب</div>
+                    <div class="stat-value" id="absentDays">0</div>
+                    <div class="percentage" id="absentPercentage"></div>
+                </div>
+            </div>
+
+            <div class="day-edit-section">
+                <h3>تعديل الأيام</h3>
+                <div class="days-edit-grid" id="daysEditGrid"></div>
+            </div>
+
+            <div class="details-section">
+                <h3>ملخص الحضور</h3>
+                <div class="days-list" id="presentDaysList"></div>
+            </div>
+
+            <div class="details-section">
+                <h3>ملخص الغياب</h3>
+                <div class="days-list" id="absentDaysList"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-delete" onclick="deleteStudent()">
+                    <i class="fas fa-trash"></i> حذف الطالب
+                </button>
+                <button class="btn btn-close" onclick="closeModal()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let students = [];
+        let attendance = {};
+        let selectedStudentId = null;
+        const daysInMonth = 30;
+
+        function initAttendance() {
+            students.forEach(student => {
+                if (!attendance[student.id]) {
+                    attendance[student.id] = {};
+                    for (let i = 1; i <= daysInMonth; i++) {
+                        attendance[student.id][i] = null;
+                    }
+                }
+            });
+        }
+
+        function getMonthDisplay() {
+            const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+                          'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            const now = new Date();
+            return `${months[now.getMonth()]} ${now.getFullYear()}`;
+        }
+
+        function setupTable() {
+            const headerRow = document.getElementById('headerRow');
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const th = document.createElement('th');
+                th.textContent = `اليوم ${day}`;
+                headerRow.appendChild(th);
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            students.forEach(student => {
+                const tr = document.createElement('tr');
+                
+                const nameCell = document.createElement('td');
+                nameCell.textContent = student.name;
+                nameCell.style.cursor = 'pointer';
+                nameCell.onclick = () => showStudentDetails(student.id);
+                tr.appendChild(nameCell);
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const td = document.createElement('td');
+                    const status = attendance[student.id][day];
+                    
+                    const cell = document.createElement('div');
+                    cell.className = 'day-cell';
+                    
+                    if (status === 'present') {
+                        cell.classList.add('present');
+                        cell.textContent = '✓';
+                    } else if (status === 'absent') {
+                        cell.classList.add('absent');
+                        cell.textContent = '✗';
+                    } else {
+                        cell.classList.add('empty');
+                        cell.textContent = '—';
+                    }
+                    
+                    cell.onclick = () => toggleDay(student.id, day);
+                    td.appendChild(cell);
+                    tr.appendChild(td);
+                }
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleDay(studentId, day) {
+            const current = attendance[studentId][day];
+            if (current === 'present') {
+                attendance[studentId][day] = 'absent';
+            } else if (current === 'absent') {
+                attendance[studentId][day] = null;
+            } else {
+                attendance[studentId][day] = 'present';
+            }
+            renderTable();
+        }
+
+        function addStudent() {
+            const input = document.getElementById('studentInput');
+            const name = input.value.trim();
+
+            if (!name) {
+                alert('من فضلك اكتب اسم الطالب');
+                return;
+            }
+
+            const newId = Math.max(...students.map(s => s.id), 0) + 1;
+            students.push({ id: newId, name });
+            
+            attendance[newId] = {};
+            for (let i = 1; i <= daysInMonth; i++) {
+                attendance[newId][i] = null;
+            }
+
+            input.value = '';
+            renderTable();
+        }
+
+        function updateModalStats(studentId) {
+            const data = attendance[studentId];
+            
+            const presentCount = Object.values(data).filter(v => v === 'present').length;
+            const absentCount = Object.values(data).filter(v => v === 'absent').length;
+            const totalDays = presentCount + absentCount;
+
+            document.getElementById('presentDays').textContent = presentCount;
+            document.getElementById('absentDays').textContent = absentCount;
+
+            if (totalDays > 0) {
+                const presentPct = Math.round((presentCount / totalDays) * 100);
+                const absentPct = Math.round((absentCount / totalDays) * 100);
+                document.getElementById('presentPercentage').textContent = `${presentPct}%`;
+                document.getElementById('absentPercentage').textContent = `${absentPct}%`;
+            } else {
+                document.getElementById('presentPercentage').textContent = '0%';
+                document.getElementById('absentPercentage').textContent = '0%';
+            }
+
+            const presentDays = Object.entries(data)
+                .filter(([_, status]) => status === 'present')
+                .map(([day, _]) => parseInt(day));
+            const absentDays = Object.entries(data)
+                .filter(([_, status]) => status === 'absent')
+                .map(([day, _]) => parseInt(day));
+
+            document.getElementById('presentDaysList').innerHTML = presentDays.length
+                ? presentDays.map(day => `<span class="day-tag present">اليوم ${day}</span>`).join('')
+                : '<span style="color: #999;">لا توجد أيام حضور</span>';
+
+            document.getElementById('absentDaysList').innerHTML = absentDays.length
+                ? absentDays.map(day => `<span class="day-tag absent">اليوم ${day}</span>`).join('')
+                : '<span style="color: #999;">لا توجد أيام غياب</span>';
+        }
+
+        function toggleDayInModal(studentId, day) {
+            const current = attendance[studentId][day];
+            if (current === 'present') {
+                attendance[studentId][day] = 'absent';
+            } else if (current === 'absent') {
+                attendance[studentId][day] = null;
+            } else {
+                attendance[studentId][day] = 'present';
+            }
+            
+            updateModalStats(studentId);
+            renderDaysEditGrid(studentId);
+            renderTable();
+        }
+
+        function renderDaysEditGrid(studentId) {
+            const grid = document.getElementById('daysEditGrid');
+            const data = attendance[studentId];
+            
+            grid.innerHTML = '';
+            for (let day = 1; day <= daysInMonth; day++) {
+                const btn = document.createElement('button');
+                btn.className = 'day-edit-btn';
+                const status = data[day];
+                
+                if (status === 'present') {
+                    btn.classList.add('present');
+                    btn.textContent = `يوم ${day} ✓`;
+                } else if (status === 'absent') {
+                    btn.classList.add('absent');
+                    btn.textContent = `يوم ${day} ✗`;
+                } else {
+                    btn.textContent = `يوم ${day}`;
+                }
+                
+                btn.onclick = () => toggleDayInModal(studentId, day);
+                grid.appendChild(btn);
+            }
+        }
+
+        function showStudentDetails(studentId) {
+            selectedStudentId = studentId;
+            const student = students.find(s => s.id === studentId);
+
+            document.getElementById('modalStudentName').textContent = student.name;
+
+            updateModalStats(studentId);
+            renderDaysEditGrid(studentId);
+
+            document.getElementById('detailsModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').classList.remove('show');
+            selectedStudentId = null;
+        }
+
+        function deleteStudent() {
+            if (!selectedStudentId) {
+                alert('حدث خطأ');
+                return;
+            }
+
+            const student = students.find(s => s.id === selectedStudentId);
+            if (confirm(`هل أنت متأكد من حذف ${student.name}؟`)) {
+                students = students.filter(s => s.id !== selectedStudentId);
+                delete attendance[selectedStudentId];
+                selectedStudentId = null;
+                closeModal();
+                renderTable();
+            }
+        }
+
+        // Event listeners
+        document.getElementById('studentInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addStudent();
+        });
+
+        document.getElementById('detailsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'detailsModal') closeModal();
+        });
+
+        // Initialize
+        document.getElementById('monthDisplay').textContent = getMonthDisplay();
+        initAttendance();
+        setupTable();
+        renderTable();
+    </script>
+</body>
+</html>
