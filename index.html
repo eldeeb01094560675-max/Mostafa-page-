@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -47,21 +48,38 @@
             display: flex;
             gap: 10px;
             margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
         .add-section input {
-            flex: 1;
             padding: 12px 15px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
-            font-family: inherit;
         }
 
         .add-section input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .add-section input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .add-section input[type="date"] {
+            min-width: 150px;
+        }
+
+        .date-display {
+            padding: 10px 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
         }
 
         .btn {
@@ -77,7 +95,6 @@
 
         .btn:hover {
             background: #5568d3;
-            transform: translateY(-2px);
         }
 
         .table-wrapper {
@@ -95,15 +112,12 @@
         thead {
             background: #667eea;
             color: white;
-            position: sticky;
-            top: 0;
         }
 
         th {
             padding: 12px 8px;
             text-align: center;
             font-weight: 600;
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         th:first-child {
@@ -113,7 +127,6 @@
 
         tbody tr {
             border-bottom: 1px solid #e0e0e0;
-            transition: background 0.3s;
         }
 
         tbody tr:hover {
@@ -131,21 +144,22 @@
             font-weight: 500;
             color: #333;
             cursor: pointer;
-            padding-right: 15px;
             min-width: 140px;
             background: #f8f9fa;
             border-right: 2px solid #667eea;
         }
 
-        tbody tr:hover td:first-child {
+        td:first-child:hover {
             background: #e8eaf6;
         }
 
         .day-cell {
             padding: 6px 2px;
             cursor: pointer;
-            user-select: none;
             font-weight: 600;
+            border-radius: 4px;
+            display: inline-block;
+            min-width: 24px;
         }
 
         .day-cell.present {
@@ -161,10 +175,6 @@
         .day-cell.empty {
             background: #f0f0f0;
             color: #999;
-        }
-
-        .day-cell:hover {
-            opacity: 0.8;
         }
 
         .modal {
@@ -215,12 +225,10 @@
             font-size: 24px;
             cursor: pointer;
             color: #666;
-            transition: all 0.3s;
         }
 
         .close-btn:hover {
             color: #333;
-            transform: rotate(90deg);
         }
 
         .stats-grid {
@@ -256,23 +264,12 @@
         .stat-value {
             font-size: 32px;
             font-weight: bold;
-            color: inherit;
         }
 
         .percentage {
             font-size: 13px;
             margin-top: 8px;
             opacity: 0.8;
-        }
-
-        .day-edit-section {
-            margin-bottom: 1.5rem;
-        }
-
-        .day-edit-section h3 {
-            color: #333;
-            margin-bottom: 1rem;
-            font-size: 16px;
         }
 
         .days-edit-grid {
@@ -327,7 +324,7 @@
         }
 
         .day-tag {
-            padding: 6px 12px;
+            padding: 8px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 500;
@@ -370,58 +367,28 @@
         .btn-close:hover {
             background: #5a6268;
         }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            h1 {
-                font-size: 22px;
-            }
-
-            table {
-                font-size: 11px;
-            }
-
-            th, td {
-                padding: 8px 2px;
-            }
-
-            td:first-child {
-                min-width: 100px;
-                padding: 8px 10px;
-            }
-
-            .days-edit-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📋 قائمة الحضور الشهرية</h1>
-        <div class="month-info">
-            <span id="monthDisplay"></span>
-        </div>
+        <div class="month-info" id="monthDisplay"></div>
 
         <div class="add-section">
             <input type="text" id="studentInput" placeholder="اسم الطالب الجديد">
-            <button class="btn" onclick="addStudent()">
-                <i class="fas fa-plus"></i> إضافة
-            </button>
+            <input type="date" id="dateInput">
+            <div class="date-display" id="dateDisplay"></div>
+            <button class="btn" onclick="addStudent()"><i class="fas fa-plus"></i> إضافة</button>
         </div>
 
         <div class="table-wrapper">
-            <table id="attendanceTable">
+            <table>
                 <thead>
                     <tr id="headerRow">
                         <th>اسم الطالب</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody">
-                </tbody>
+                <tbody id="tableBody"></tbody>
             </table>
         </div>
     </div>
@@ -437,16 +404,16 @@
                 <div class="stat-item present">
                     <div class="stat-label">أيام الحضور</div>
                     <div class="stat-value" id="presentDays">0</div>
-                    <div class="percentage" id="presentPercentage"></div>
+                    <div class="percentage" id="presentPercentage">0%</div>
                 </div>
                 <div class="stat-item absent">
                     <div class="stat-label">أيام الغياب</div>
                     <div class="stat-value" id="absentDays">0</div>
-                    <div class="percentage" id="absentPercentage"></div>
+                    <div class="percentage" id="absentPercentage">0%</div>
                 </div>
             </div>
 
-            <div class="day-edit-section">
+            <div>
                 <h3>تعديل الأيام</h3>
                 <div class="days-edit-grid" id="daysEditGrid"></div>
             </div>
@@ -462,9 +429,7 @@
             </div>
 
             <div class="action-buttons">
-                <button class="btn btn-delete" onclick="deleteStudent()">
-                    <i class="fas fa-trash"></i> حذف الطالب
-                </button>
+                <button class="btn btn-delete" onclick="deleteStudent()"><i class="fas fa-trash"></i> حذف</button>
                 <button class="btn btn-close" onclick="closeModal()">إغلاق</button>
             </div>
         </div>
@@ -472,19 +437,17 @@
 
     <script>
         let students = [];
-        let attendance = {};
+        let attendance = {}; // attendance[dateKey][studentId][day] = {status, date}
         let selectedStudentId = null;
+        let selectedDate = null;
         const daysInMonth = 30;
 
-        function initAttendance() {
-            students.forEach(student => {
-                if (!attendance[student.id]) {
-                    attendance[student.id] = {};
-                    for (let i = 1; i <= daysInMonth; i++) {
-                        attendance[student.id][i] = null;
-                    }
-                }
-            });
+        function formatArabicDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+                          'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
         }
 
         function getMonthDisplay() {
@@ -496,7 +459,6 @@
 
         function setupTable() {
             const headerRow = document.getElementById('headerRow');
-            
             for (let day = 1; day <= daysInMonth; day++) {
                 const th = document.createElement('th');
                 th.textContent = `اليوم ${day}`;
@@ -508,18 +470,26 @@
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
+            if (!attendance[selectedDate]) {
+                attendance[selectedDate] = {};
+            }
+
             students.forEach(student => {
                 const tr = document.createElement('tr');
                 
                 const nameCell = document.createElement('td');
                 nameCell.textContent = student.name;
-                nameCell.style.cursor = 'pointer';
                 nameCell.onclick = () => showStudentDetails(student.id);
                 tr.appendChild(nameCell);
 
+                if (!attendance[selectedDate][student.id]) {
+                    attendance[selectedDate][student.id] = {};
+                }
+
                 for (let day = 1; day <= daysInMonth; day++) {
                     const td = document.createElement('td');
-                    const status = attendance[student.id][day];
+                    const entry = attendance[selectedDate][student.id][day];
+                    const status = entry ? entry.status : null;
                     
                     const cell = document.createElement('div');
                     cell.className = 'day-cell';
@@ -527,15 +497,21 @@
                     if (status === 'present') {
                         cell.classList.add('present');
                         cell.textContent = '✓';
+                        cell.title = entry.date;
                     } else if (status === 'absent') {
                         cell.classList.add('absent');
                         cell.textContent = '✗';
+                        cell.title = entry.date;
                     } else {
                         cell.classList.add('empty');
                         cell.textContent = '—';
                     }
                     
-                    cell.onclick = () => toggleDay(student.id, day);
+                    cell.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleDay(student.id, day);
+                    };
+                    
                     td.appendChild(cell);
                     tr.appendChild(td);
                 }
@@ -545,14 +521,21 @@
         }
 
         function toggleDay(studentId, day) {
-            const current = attendance[studentId][day];
-            if (current === 'present') {
-                attendance[studentId][day] = 'absent';
-            } else if (current === 'absent') {
-                attendance[studentId][day] = null;
-            } else {
-                attendance[studentId][day] = 'present';
+            if (!attendance[selectedDate][studentId]) {
+                attendance[selectedDate][studentId] = {};
             }
+
+            const entry = attendance[selectedDate][studentId][day];
+            const today = formatArabicDate(selectedDate);
+            
+            if (!entry) {
+                attendance[selectedDate][studentId][day] = { status: 'present', date: today };
+            } else if (entry.status === 'present') {
+                attendance[selectedDate][studentId][day] = { status: 'absent', date: today };
+            } else {
+                attendance[selectedDate][studentId][day] = null;
+            }
+            
             renderTable();
         }
 
@@ -567,100 +550,77 @@
 
             const newId = Math.max(...students.map(s => s.id), 0) + 1;
             students.push({ id: newId, name });
-            
-            attendance[newId] = {};
-            for (let i = 1; i <= daysInMonth; i++) {
-                attendance[newId][i] = null;
-            }
 
             input.value = '';
             renderTable();
         }
 
-        function updateModalStats(studentId) {
-            const data = attendance[studentId];
-            
-            const presentCount = Object.values(data).filter(v => v === 'present').length;
-            const absentCount = Object.values(data).filter(v => v === 'absent').length;
+        function showStudentDetails(studentId) {
+            selectedStudentId = studentId;
+            const student = students.find(s => s.id === studentId);
+            document.getElementById('modalStudentName').textContent = student.name;
+
+            const data = attendance[selectedDate][studentId] || {};
+            const presentCount = Object.values(data).filter(v => v && v.status === 'present').length;
+            const absentCount = Object.values(data).filter(v => v && v.status === 'absent').length;
             const totalDays = presentCount + absentCount;
 
             document.getElementById('presentDays').textContent = presentCount;
             document.getElementById('absentDays').textContent = absentCount;
 
             if (totalDays > 0) {
-                const presentPct = Math.round((presentCount / totalDays) * 100);
-                const absentPct = Math.round((absentCount / totalDays) * 100);
-                document.getElementById('presentPercentage').textContent = `${presentPct}%`;
-                document.getElementById('absentPercentage').textContent = `${absentPct}%`;
+                document.getElementById('presentPercentage').textContent = Math.round((presentCount / totalDays) * 100) + '%';
+                document.getElementById('absentPercentage').textContent = Math.round((absentCount / totalDays) * 100) + '%';
             } else {
                 document.getElementById('presentPercentage').textContent = '0%';
                 document.getElementById('absentPercentage').textContent = '0%';
             }
 
+            // أيام الحضور
             const presentDays = Object.entries(data)
-                .filter(([_, status]) => status === 'present')
-                .map(([day, _]) => parseInt(day));
-            const absentDays = Object.entries(data)
-                .filter(([_, status]) => status === 'absent')
-                .map(([day, _]) => parseInt(day));
+                .filter(([_, v]) => v && v.status === 'present')
+                .map(([day, v]) => `<span class="day-tag present" title="${v.date}">اليوم ${day} ✓</span>`);
 
-            document.getElementById('presentDaysList').innerHTML = presentDays.length
-                ? presentDays.map(day => `<span class="day-tag present">اليوم ${day}</span>`).join('')
+            document.getElementById('presentDaysList').innerHTML = presentDays.length > 0
+                ? presentDays.join('')
                 : '<span style="color: #999;">لا توجد أيام حضور</span>';
 
-            document.getElementById('absentDaysList').innerHTML = absentDays.length
-                ? absentDays.map(day => `<span class="day-tag absent">اليوم ${day}</span>`).join('')
+            // أيام الغياب
+            const absentDays = Object.entries(data)
+                .filter(([_, v]) => v && v.status === 'absent')
+                .map(([day, v]) => `<span class="day-tag absent" title="${v.date}">اليوم ${day} ✗</span>`);
+
+            document.getElementById('absentDaysList').innerHTML = absentDays.length > 0
+                ? absentDays.join('')
                 : '<span style="color: #999;">لا توجد أيام غياب</span>';
-        }
 
-        function toggleDayInModal(studentId, day) {
-            const current = attendance[studentId][day];
-            if (current === 'present') {
-                attendance[studentId][day] = 'absent';
-            } else if (current === 'absent') {
-                attendance[studentId][day] = null;
-            } else {
-                attendance[studentId][day] = 'present';
-            }
-            
-            updateModalStats(studentId);
-            renderDaysEditGrid(studentId);
-            renderTable();
-        }
-
-        function renderDaysEditGrid(studentId) {
+            // تحديث شبكة التعديل
             const grid = document.getElementById('daysEditGrid');
-            const data = attendance[studentId];
-            
             grid.innerHTML = '';
             for (let day = 1; day <= daysInMonth; day++) {
                 const btn = document.createElement('button');
                 btn.className = 'day-edit-btn';
-                const status = data[day];
+                const entry = data[day];
                 
-                if (status === 'present') {
+                if (entry && entry.status === 'present') {
                     btn.classList.add('present');
                     btn.textContent = `يوم ${day} ✓`;
-                } else if (status === 'absent') {
+                    btn.title = entry.date;
+                } else if (entry && entry.status === 'absent') {
                     btn.classList.add('absent');
                     btn.textContent = `يوم ${day} ✗`;
+                    btn.title = entry.date;
                 } else {
                     btn.textContent = `يوم ${day}`;
                 }
                 
-                btn.onclick = () => toggleDayInModal(studentId, day);
+                btn.onclick = () => {
+                    toggleDay(studentId, day);
+                    showStudentDetails(studentId);
+                };
+                
                 grid.appendChild(btn);
             }
-        }
-
-        function showStudentDetails(studentId) {
-            selectedStudentId = studentId;
-            const student = students.find(s => s.id === studentId);
-
-            document.getElementById('modalStudentName').textContent = student.name;
-
-            updateModalStats(studentId);
-            renderDaysEditGrid(studentId);
 
             document.getElementById('detailsModal').classList.add('show');
         }
@@ -671,16 +631,14 @@
         }
 
         function deleteStudent() {
-            if (!selectedStudentId) {
-                alert('حدث خطأ');
-                return;
-            }
+            if (!selectedStudentId) return;
 
             const student = students.find(s => s.id === selectedStudentId);
             if (confirm(`هل أنت متأكد من حذف ${student.name}؟`)) {
                 students = students.filter(s => s.id !== selectedStudentId);
-                delete attendance[selectedStudentId];
-                selectedStudentId = null;
+                Object.keys(attendance).forEach(date => {
+                    delete attendance[date][selectedStudentId];
+                });
                 closeModal();
                 renderTable();
             }
@@ -695,9 +653,22 @@
             if (e.target.id === 'detailsModal') closeModal();
         });
 
+        document.getElementById('dateInput').addEventListener('change', (e) => {
+            selectedDate = e.target.value;
+            if (selectedDate) {
+                document.getElementById('dateDisplay').textContent = '📅 ' + formatArabicDate(selectedDate);
+            } else {
+                document.getElementById('dateDisplay').textContent = '';
+            }
+            renderTable();
+        });
+
         // Initialize
         document.getElementById('monthDisplay').textContent = getMonthDisplay();
-        initAttendance();
+        const today = new Date();
+        document.getElementById('dateInput').valueAsDate = today;
+        selectedDate = today.toISOString().split('T')[0];
+        document.getElementById('dateDisplay').textContent = '📅 ' + formatArabicDate(selectedDate);
         setupTable();
         renderTable();
     </script>
