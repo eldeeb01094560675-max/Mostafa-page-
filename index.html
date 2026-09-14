@@ -1,9 +1,9 @@
-DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>قائمة الحضور الشهرية</title>
+    <title>قائمة الحضور - 8 حصص</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -31,16 +31,9 @@ DOCTYPE html>
 
         h1 {
             color: #333;
-            margin-bottom: 0.5rem;
             text-align: center;
             font-size: 28px;
-        }
-
-        .month-info {
-            text-align: center;
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 14px;
+            margin-bottom: 1.5rem;
         }
 
         .add-section {
@@ -66,19 +59,6 @@ DOCTYPE html>
         .add-section input[type="text"] {
             flex: 1;
             min-width: 200px;
-        }
-
-        .add-section input[type="date"] {
-            min-width: 150px;
-        }
-
-        .date-display {
-            padding: 10px 15px;
-            background: #f0f0f0;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #333;
         }
 
         .btn {
@@ -197,7 +177,7 @@ DOCTYPE html>
             background: white;
             border-radius: 12px;
             padding: 2rem;
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             max-height: 90vh;
@@ -271,39 +251,55 @@ DOCTYPE html>
             opacity: 0.8;
         }
 
-        .days-edit-grid {
+        .lessons-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
             margin-bottom: 1.5rem;
         }
 
-        .day-edit-btn {
+        .lesson-item {
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid #ddd;
             border-radius: 8px;
+            text-align: center;
+        }
+
+        .lesson-item.present {
+            background: #d4edda;
+            border-color: #155724;
+        }
+
+        .lesson-item.absent {
+            background: #f8d7da;
+            border-color: #721c24;
+        }
+
+        .lesson-item.empty {
             background: #f8f9fa;
-            color: #333;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
             transition: all 0.3s;
         }
 
-        .day-edit-btn:hover {
+        .lesson-item.empty:hover {
             border-color: #667eea;
+            background: #f0f1f3;
         }
 
-        .day-edit-btn.present {
-            background: #d4edda;
-            border-color: #155724;
-            color: #155724;
+        .lesson-number {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
         }
 
-        .day-edit-btn.absent {
-            background: #f8d7da;
-            border-color: #721c24;
-            color: #721c24;
+        .lesson-status {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .lesson-date {
+            font-size: 11px;
+            color: #666;
         }
 
         .details-section {
@@ -316,27 +312,30 @@ DOCTYPE html>
             font-size: 16px;
         }
 
-        .days-list {
+        .lesson-detail {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-right: 4px solid;
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .day-tag {
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .day-tag.present {
+        .lesson-detail.present {
             background: #d4edda;
             color: #155724;
+            border-right-color: #155724;
         }
 
-        .day-tag.absent {
+        .lesson-detail.absent {
             background: #f8d7da;
             color: #721c24;
+            border-right-color: #721c24;
+        }
+
+        .lesson-detail strong {
+            font-weight: 600;
         }
 
         .action-buttons {
@@ -366,19 +365,48 @@ DOCTYPE html>
         .btn-close:hover {
             background: #5a6268;
         }
+
+        .modal-date-input {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1rem;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .modal-date-input input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .modal-date-input button {
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .modal-date-input button:hover {
+            background: #5568d3;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📋 قائمة الحضور الشهرية</h1>
-        <div class="month-info" id="monthDisplay"></div>
+        <h1>📋 قائمة الحضور - 8 حصص</h1>
 
         <div class="add-section">
             <input type="text" id="studentInput" placeholder="اسم الطالب الجديد">
-            <input type="date" id="dateInput">
-            <div class="date-display" id="dateDisplay"></div>
             <button class="btn" onclick="addStudent()"><i class="fas fa-plus"></i> إضافة</button>
         </div>
+        <div id="addStudentError" style="display:none; color:#721c24; background:#f8d7da; padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:1rem;"></div>
 
         <div class="table-wrapper">
             <table>
@@ -413,18 +441,18 @@ DOCTYPE html>
             </div>
 
             <div>
-                <h3>تعديل الأيام</h3>
-                <div class="days-edit-grid" id="daysEditGrid"></div>
+                <h3>تعديل الحصص</h3>
+                <div class="lessons-grid" id="lessonsGrid"></div>
             </div>
 
             <div class="details-section">
                 <h3>ملخص الحضور</h3>
-                <div class="days-list" id="presentDaysList"></div>
+                <div id="presentLessonsList"></div>
             </div>
 
             <div class="details-section">
                 <h3>ملخص الغياب</h3>
-                <div class="days-list" id="absentDaysList"></div>
+                <div id="absentLessonsList"></div>
             </div>
 
             <div class="action-buttons">
@@ -434,33 +462,56 @@ DOCTYPE html>
         </div>
     </div>
 
+    <div class="modal" id="dateModal">
+        <div class="modal-content" style="max-width: 360px;">
+            <div class="modal-header">
+                <h2 id="dateModalTitle">إدخال التاريخ</h2>
+                <button class="close-btn" onclick="closeDateModal()">&times;</button>
+            </div>
+            <div class="modal-date-input">
+                <input type="date" id="dateModalInput">
+            </div>
+            <div id="dateModalError" style="display:none; color:#721c24; background:#f8d7da; padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:1rem;"></div>
+            <div class="action-buttons">
+                <button class="btn" style="flex:1;" onclick="confirmDateModal()">حفظ</button>
+                <button class="btn btn-close" onclick="closeDateModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="confirmModal">
+        <div class="modal-content" style="max-width: 360px;">
+            <div class="modal-header">
+                <h2>تأكيد الحذف</h2>
+            </div>
+            <p id="confirmModalText" style="margin-bottom: 1.5rem;"></p>
+            <div class="action-buttons">
+                <button class="btn btn-delete" onclick="confirmDeleteYes()">حذف</button>
+                <button class="btn btn-close" onclick="closeConfirmModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let students = [];
-        let attendance = {}; // attendance[dateKey][studentId][day] = {status, date}
+        let attendance = {}; // attendance[studentId][lessonNum] = {status, date}
         let selectedStudentId = null;
-        let selectedDate = null;
-        const daysInMonth = 30;
+        const lessonsCount = 8;
 
         function formatArabicDate(dateString) {
+            if (!dateString) return '';
             const date = new Date(dateString + 'T00:00:00');
             const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
                           'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
             const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-            return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-        }
-
-        function getMonthDisplay() {
-            const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-                          'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-            const now = new Date();
-            return `${months[now.getMonth()]} ${now.getFullYear()}`;
+            return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
         }
 
         function setupTable() {
             const headerRow = document.getElementById('headerRow');
-            for (let day = 1; day <= daysInMonth; day++) {
+            for (let lesson = 1; lesson <= lessonsCount; lesson++) {
                 const th = document.createElement('th');
-                th.textContent = `اليوم ${day}`;
+                th.textContent = `الحصة ${lesson}`;
                 headerRow.appendChild(th);
             }
         }
@@ -468,10 +519,6 @@ DOCTYPE html>
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-
-            if (!attendance[selectedDate]) {
-                attendance[selectedDate] = {};
-            }
 
             students.forEach(student => {
                 const tr = document.createElement('tr');
@@ -481,13 +528,13 @@ DOCTYPE html>
                 nameCell.onclick = () => showStudentDetails(student.id);
                 tr.appendChild(nameCell);
 
-                if (!attendance[selectedDate][student.id]) {
-                    attendance[selectedDate][student.id] = {};
+                if (!attendance[student.id]) {
+                    attendance[student.id] = {};
                 }
 
-                for (let day = 1; day <= daysInMonth; day++) {
+                for (let lesson = 1; lesson <= lessonsCount; lesson++) {
                     const td = document.createElement('td');
-                    const entry = attendance[selectedDate][student.id][day];
+                    const entry = attendance[student.id][lesson];
                     const status = entry ? entry.status : null;
                     
                     const cell = document.createElement('div');
@@ -496,11 +543,11 @@ DOCTYPE html>
                     if (status === 'present') {
                         cell.classList.add('present');
                         cell.textContent = '✓';
-                        cell.title = entry.date;
+                        cell.title = entry.date ? formatArabicDate(entry.date) : '';
                     } else if (status === 'absent') {
                         cell.classList.add('absent');
                         cell.textContent = '✗';
-                        cell.title = entry.date;
+                        cell.title = entry.date ? formatArabicDate(entry.date) : '';
                     } else {
                         cell.classList.add('empty');
                         cell.textContent = '—';
@@ -508,7 +555,7 @@ DOCTYPE html>
                     
                     cell.onclick = (e) => {
                         e.stopPropagation();
-                        toggleDay(student.id, day);
+                        toggleLesson(student.id, lesson);
                     };
                     
                     td.appendChild(cell);
@@ -519,39 +566,89 @@ DOCTYPE html>
             });
         }
 
-        function toggleDay(studentId, day) {
-            if (!attendance[selectedDate][studentId]) {
-                attendance[selectedDate][studentId] = {};
+        function toggleLesson(studentId, lesson) {
+            if (!attendance[studentId]) {
+                attendance[studentId] = {};
             }
 
-            const entry = attendance[selectedDate][studentId][day];
-            const today = formatArabicDate(selectedDate);
-            
-            if (!entry) {
-                attendance[selectedDate][studentId][day] = { status: 'present', date: today };
-            } else if (entry.status === 'present') {
-                attendance[selectedDate][studentId][day] = { status: 'absent', date: today };
+            const entry = attendance[studentId][lesson];
+
+            if (entry && entry.status === 'present') {
+                openDateModal(studentId, lesson, 'absent', entry.date, false);
+            } else if (entry && entry.status === 'absent') {
+                attendance[studentId][lesson] = null;
+                renderTable();
             } else {
-                attendance[selectedDate][studentId][day] = null;
+                openDateModal(studentId, lesson, 'present', '', false);
             }
-            
+        }
+
+        let pendingDate = null;
+
+        function openDateModal(studentId, lesson, newStatus, currentDate, fromDetails) {
+            pendingDate = { studentId, lesson, newStatus, fromDetails };
+            document.getElementById('dateModalTitle').textContent = newStatus === 'present'
+                ? `تاريخ الحضور - الحصة ${lesson}`
+                : `تاريخ الغياب - الحصة ${lesson}`;
+            document.getElementById('dateModalInput').value = currentDate || new Date().toISOString().slice(0, 10);
+            document.getElementById('dateModalError').style.display = 'none';
+            document.getElementById('dateModal').classList.add('show');
+        }
+
+        function closeDateModal() {
+            document.getElementById('dateModal').classList.remove('show');
+            pendingDate = null;
+        }
+
+        function confirmDateModal() {
+            const dateString = document.getElementById('dateModalInput').value;
+            const errorEl = document.getElementById('dateModalError');
+
+            if (!dateString) {
+                errorEl.textContent = 'يجب اختيار التاريخ';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            const { studentId, lesson, newStatus, fromDetails } = pendingDate;
+            if (!attendance[studentId]) attendance[studentId] = {};
+            attendance[studentId][lesson] = { status: newStatus, date: dateString };
+
+            document.getElementById('dateModal').classList.remove('show');
+            pendingDate = null;
+
             renderTable();
+            if (fromDetails) {
+                showStudentDetails(studentId);
+            }
         }
 
         function addStudent() {
             const input = document.getElementById('studentInput');
             const name = input.value.trim();
+            const errorEl = document.getElementById('addStudentError');
 
             if (!name) {
-                alert('من فضلك اكتب اسم الطالب');
+                errorEl.textContent = 'من فضلك اكتب اسم الطالب';
+                errorEl.style.display = 'block';
                 return;
             }
+            errorEl.style.display = 'none';
 
             const newId = Math.max(...students.map(s => s.id), 0) + 1;
             students.push({ id: newId, name });
+            attendance[newId] = {};
 
             input.value = '';
             renderTable();
+        }
+
+        function setLessonDate(studentId, lesson, dateString) {
+            if (!attendance[studentId][lesson]) {
+                attendance[studentId][lesson] = { status: null, date: dateString };
+            } else {
+                attendance[studentId][lesson].date = dateString;
+            }
         }
 
         function showStudentDetails(studentId) {
@@ -559,7 +656,7 @@ DOCTYPE html>
             const student = students.find(s => s.id === studentId);
             document.getElementById('modalStudentName').textContent = student.name;
 
-            const data = attendance[selectedDate][studentId] || {};
+            const data = attendance[studentId] || {};
             const presentCount = Object.values(data).filter(v => v && v.status === 'present').length;
             const absentCount = Object.values(data).filter(v => v && v.status === 'absent').length;
             const totalDays = presentCount + absentCount;
@@ -575,53 +672,63 @@ DOCTYPE html>
                 document.getElementById('absentPercentage').textContent = '0%';
             }
 
-            // أيام الحضور
-            const presentDays = Object.entries(data)
-                .filter(([_, v]) => v && v.status === 'present')
-                .map(([day, v]) => `<span class="day-tag present" title="${v.date}">اليوم ${day} ✓</span>`);
-
-            document.getElementById('presentDaysList').innerHTML = presentDays.length > 0
-                ? presentDays.join('')
-                : '<span style="color: #999;">لا توجد أيام حضور</span>';
-
-            // أيام الغياب
-            const absentDays = Object.entries(data)
-                .filter(([_, v]) => v && v.status === 'absent')
-                .map(([day, v]) => `<span class="day-tag absent" title="${v.date}">اليوم ${day} ✗</span>`);
-
-            document.getElementById('absentDaysList').innerHTML = absentDays.length > 0
-                ? absentDays.join('')
-                : '<span style="color: #999;">لا توجد أيام غياب</span>';
-
-            // تحديث شبكة التعديل
-            const grid = document.getElementById('daysEditGrid');
+            // شبكة الحصص
+            const grid = document.getElementById('lessonsGrid');
             grid.innerHTML = '';
-            for (let day = 1; day <= daysInMonth; day++) {
-                const btn = document.createElement('button');
-                btn.className = 'day-edit-btn';
-                const entry = data[day];
+            for (let lesson = 1; lesson <= lessonsCount; lesson++) {
+                const entry = data[lesson];
+                const status = entry ? entry.status : null;
+                const date = entry ? entry.date : null;
+
+                const div = document.createElement('div');
+                div.className = 'lesson-item ' + (status || 'empty');
                 
-                if (entry && entry.status === 'present') {
-                    btn.classList.add('present');
-                    btn.textContent = `يوم ${day} ✓`;
-                    btn.title = entry.date;
-                } else if (entry && entry.status === 'absent') {
-                    btn.classList.add('absent');
-                    btn.textContent = `يوم ${day} ✗`;
-                    btn.title = entry.date;
-                } else {
-                    btn.textContent = `يوم ${day}`;
-                }
-                
-                btn.onclick = () => {
-                    toggleDay(studentId, day);
-                    showStudentDetails(studentId);
+                div.innerHTML = `
+                    <div class="lesson-number">الحصة ${lesson}</div>
+                    ${status ? `<div class="lesson-status">${status === 'present' ? '✓' : '✗'}</div>` : ''}
+                    ${date ? `<div class="lesson-date">${formatArabicDate(date)}</div>` : ''}
+                    ${!status ? '<small style="color: #999;">اضغط لإضافة</small>' : ''}
+                `;
+
+                div.onclick = () => {
+                    showDatePicker(studentId, lesson);
                 };
-                
-                grid.appendChild(btn);
+
+                grid.appendChild(div);
             }
 
+            // ملخص الحضور
+            const presentLessons = Object.entries(data)
+                .filter(([_, v]) => v && v.status === 'present')
+                .map(([lesson, v]) => `<div class="lesson-detail present"><span>حضر الحصة ${lesson}</span><strong>${formatArabicDate(v.date)}</strong></div>`);
+
+            document.getElementById('presentLessonsList').innerHTML = presentLessons.length > 0
+                ? presentLessons.join('')
+                : '<div style="color: #999;">لا توجد أيام حضور</div>';
+
+            // ملخص الغياب
+            const absentLessons = Object.entries(data)
+                .filter(([_, v]) => v && v.status === 'absent')
+                .map(([lesson, v]) => `<div class="lesson-detail absent"><span>غاب الحصة ${lesson}</span><strong>${formatArabicDate(v.date)}</strong></div>`);
+
+            document.getElementById('absentLessonsList').innerHTML = absentLessons.length > 0
+                ? absentLessons.join('')
+                : '<div style="color: #999;">لا توجد أيام غياب</div>';
+
             document.getElementById('detailsModal').classList.add('show');
+        }
+
+        function showDatePicker(studentId, lesson) {
+            const currentEntry = attendance[studentId][lesson];
+
+            if (currentEntry && currentEntry.status === 'present') {
+                openDateModal(studentId, lesson, 'absent', currentEntry.date, true);
+            } else if (currentEntry && currentEntry.status === 'absent') {
+                attendance[studentId][lesson] = null;
+                showStudentDetails(studentId);
+            } else {
+                openDateModal(studentId, lesson, 'present', '', true);
+            }
         }
 
         function closeModal() {
@@ -631,16 +738,21 @@ DOCTYPE html>
 
         function deleteStudent() {
             if (!selectedStudentId) return;
-
             const student = students.find(s => s.id === selectedStudentId);
-            if (confirm(`هل أنت متأكد من حذف ${student.name}؟`)) {
-                students = students.filter(s => s.id !== selectedStudentId);
-                Object.keys(attendance).forEach(date => {
-                    delete attendance[date][selectedStudentId];
-                });
-                closeModal();
-                renderTable();
-            }
+            document.getElementById('confirmModalText').textContent = `هل أنت متأكد من حذف ${student.name}؟`;
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+        }
+
+        function confirmDeleteYes() {
+            students = students.filter(s => s.id !== selectedStudentId);
+            delete attendance[selectedStudentId];
+            closeConfirmModal();
+            closeModal();
+            renderTable();
         }
 
         // Event listeners
@@ -652,22 +764,15 @@ DOCTYPE html>
             if (e.target.id === 'detailsModal') closeModal();
         });
 
-        document.getElementById('dateInput').addEventListener('change', (e) => {
-            selectedDate = e.target.value;
-            if (selectedDate) {
-                document.getElementById('dateDisplay').textContent = '📅 ' + formatArabicDate(selectedDate);
-            } else {
-                document.getElementById('dateDisplay').textContent = '';
-            }
-            renderTable();
+        document.getElementById('dateModal').addEventListener('click', (e) => {
+            if (e.target.id === 'dateModal') closeDateModal();
+        });
+
+        document.getElementById('confirmModal').addEventListener('click', (e) => {
+            if (e.target.id === 'confirmModal') closeConfirmModal();
         });
 
         // Initialize
-        document.getElementById('monthDisplay').textContent = getMonthDisplay();
-        const today = new Date();
-        document.getElementById('dateInput').valueAsDate = today;
-        selectedDate = today.toISOString().split('T')[0];
-        document.getElementById('dateDisplay').textContent = '📅 ' + formatArabicDate(selectedDate);
         setupTable();
         renderTable();
     </script>
